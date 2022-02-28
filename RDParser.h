@@ -10,6 +10,7 @@
 #define COP4020_P1_RDPARSER_H
 
 #include "LexicalAnalyzer.h"
+#include "LinkedList.h"
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -23,5 +24,9 @@ void match(int token);
 void factor();
 void expression();
 void term();
+void storeID(char* id);
+void storeNUM(char* num);
+void storeOperator(char op);
+void performOperation();
 
 #endif //COP4020_P1_RDPARSER_H

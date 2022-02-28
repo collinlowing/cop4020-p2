@@ -26,6 +26,7 @@ extern struct node *current;
 void printList();
 void insert(int key, char symbol[256]);
 void deleteFirst();
+struct node* popHead();
 bool isEmpty();
 struct node* find(char* symbol);
 

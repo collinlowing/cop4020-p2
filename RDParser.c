@@ -11,6 +11,12 @@
 int lookahead;
 int paraLeft;
 int paraRight;
+char* identifier;
+int number1;
+int number2;
+char operator;
+int reg = 0; // register counter
+int result;
 
 // starts the parsing and lexical analysis
 void parse()
@@ -58,6 +64,11 @@ int assignStatement()
     {
         match(lookahead);
         expression();
+
+        // reset parenthesis counters
+        paraLeft = 0;
+        paraRight = 0;
+
         match(';');
     }
 }
@@ -68,8 +79,12 @@ void expression()
     term();
     while(lookahead == '+' || lookahead == '-')
     {
+        // store operator
+        insert(OPERATOR, lookahead);
         match(lookahead);
         term();
+        // perform operation with both operands
+        performOperation();
     }
 }
 
@@ -79,8 +94,12 @@ void term()
     factor();
     while(lookahead == '*' || lookahead == '/')
     {
+        // store operator
+        insert(OPERATOR, lookahead);
         match(lookahead);
         factor();
+        // perform operation with both operands
+        performOperation();
     }
 }
 
@@ -89,16 +108,25 @@ void factor()
 {
     if(lookahead == ID)
     {
+        // load register
         match(ID);
     }
     else if(lookahead == NUM)
     {
+        // load register
         match(NUM);
     }
     else if(lookahead = '(')
     {
+        paraLeft++;
+        if(paraRight > 0)
+        {
+            reg++;
+        }
         match('(');
         expression();
+
+        paraRight++;
         match(')');
     }
     else
@@ -120,4 +148,48 @@ void match(int token)
         printf("Line %d error: expecting ')'\n", numLines);
         exit(1);
     }
+}
+
+void storeID(char* id)
+{
+    identifier = id;
+}
+
+void storeNUM(char* num)
+{
+    // convert num to int value
+    int i = atoi(num);
+    if(number1 == 0;)
+    {
+        number1 = i;
+    }
+    else if (number2 == 0;)
+    {
+        number2 = i;
+    }
+}
+
+void storeOperator(char op)
+{
+    operator = op;
+}
+
+void performOperation()
+{
+    // copy linked list current pointer
+
+    // get next node from linked list
+
+    // write out register assigned by identifier or number
+
+    reg++;
+    // repeat until operator
+
+    // write out first register <operator> second register
+
+    if(paraLeft > paraRight)
+    {
+        // write out register <operator> register again
+    }
+    reg = 0;
 }

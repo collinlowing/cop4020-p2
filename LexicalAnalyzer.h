@@ -17,6 +17,7 @@
 
 #define ID 300
 #define NUM 301
+#define OPERATOR 302;
 #define BEGIN 400
 #define END 401
 #define NOT_FOUND -1
