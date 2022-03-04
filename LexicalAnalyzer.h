@@ -6,8 +6,8 @@
   perform lexical analysis on a file
 ***************************************************************/
 
-#ifndef COP4020_P1_LEXICALANALYZER_H
-#define COP4020_P1_LEXICALANALYZER_H
+#ifndef COP4020_LEXICALANALYZER_H
+#define COP4020_LEXICALANALYZER_H
 
 #include <ctype.h>
 #include <string.h>
@@ -17,15 +17,18 @@
 
 #define ID 300
 #define NUM 301
-#define OPERATOR 302;
+#define OPERATOR 302
+#define PRIMITIVE 303
 #define BEGIN 400
 #define END 401
 #define NOT_FOUND -1
 
 extern int numLines;
 extern int type;
-extern FILE * file;
+extern FILE * input;
+extern FILE * output;
 extern char ch;
+extern char* fName;
 
 void init(char * filename);
 int lookup(char* lexeme);
@@ -33,4 +36,4 @@ int lexan();
 void append(char * str, char c);
 void cleanup();
 
-#endif //COP4020_P1_LEXICALANALYZER_H
+#endif //COP4020_LEXICALANALYZER_H

@@ -11,17 +11,34 @@
 // declare and initialize global variables
 int numLines = 1;
 int type;
-FILE * file = NULL;
+FILE * input = NULL;
+FILE * output = NULL;
 char ch;
+char * fName;
 
 // opens file and checks if the file is actually open
 void init(char * filename)
 {
-    file = fopen(filename, "r");
+    // init file input
+    fName = filename;
+    input = fopen(fName, "r");
 
-    if(file == NULL)
+    if(input == NULL)
     {
-        printf("error file cannot open\n");
+        printf("error: input file could not be open\n");
+        exit(1);
+    }
+
+    // init file output
+    char * outputFileName = fName;
+    strcat(outputFileName, ".out");
+
+    output = fopen(outputFileName, "w");
+
+    // check if output file is open
+    if(output == NULL)
+    {
+        printf("error: output file could not be opened\n");
         exit(1);
     }
 }
@@ -37,7 +54,7 @@ int lexan()
 
     while(1)
     {
-        ch = fgetc(file); // get first char from file
+        ch = fgetc(input); // get first char from file
         if (ch == ' ' | ch == '\t') {   // do nothing
             ;                     // whitespace is ignored
         }
@@ -49,9 +66,9 @@ int lexan()
         {
             while(ch != '\n') //skip over everything in comment line
             {
-                ch = fgetc(file);
+                ch = fgetc(input);
             }
-            ungetc(ch, file);
+            ungetc(ch, input);
         }
         else if (isdigit(ch)) // handles numbers
         {
@@ -59,9 +76,9 @@ int lexan()
             {
                 append(numLexeme, ch);  // inputs digits into number string
                 numLength++;                   // increments number length
-                ch = fgetc(file);
+                ch = fgetc(input);
             }
-            ungetc(ch, file);
+            ungetc(ch, input);
 
             append(numLexeme, ch);      // adds digit to number string
             return NUM;
@@ -89,8 +106,13 @@ int lexan()
                 {
                     return END;
                 }
+                // checks if primitive type initialization
+                if(strcmp(idLexeme, "int") == 0)
+                {
+                    return PRIMITIVE;
+                }
 
-                ch = fgetc(file); //gets next char
+                ch = fgetc(input); //gets next char
             }
             if(idLength > 0 && idLexeme[idLength - 1] == '_') // checks if identifier ends with '-'
             {
@@ -104,11 +126,11 @@ int lexan()
             if(type == NOT_FOUND) // if the identifier is not found then add it to the list
             {
                 insert(ID, idLexeme);
-                ungetc(ch, file);
+                ungetc(ch, input);
                 return ID; // return type
             }
 
-            ungetc(ch, file);
+            ungetc(ch, input);
             return type;
         }
         else if(ch == EOF) // reached end of file without 'end.'
@@ -158,5 +180,6 @@ void cleanup()
         deleteFirst();
     }
 
-    fclose(file);
+    fclose(input);
+    fclose(output);
 }

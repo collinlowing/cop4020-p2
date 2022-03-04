@@ -9,18 +9,18 @@
 #include "RDParser.h"
 
 int lookahead;
-int paraLeft;
-int paraRight;
 char* identifier;
-int number1;
-int number2;
 char operator;
-int reg = 0; // register counter
-int result;
+char regArray[10][256];
+char opArray[10];
+int reg = 0;
+int op = 0;
+
 
 // starts the parsing and lexical analysis
 void parse()
 {
+    // get first token
     lookahead = lexan();
     // check if starts with begin
     if(lookahead != BEGIN)
@@ -38,7 +38,7 @@ void parse()
         {
             if(lookahead != BEGIN) // prevents multiple begin statements
             {
-                assignStatement();
+                initializeStatement();
             }
             if(lookahead == END) // ended the program in success
             {
@@ -51,23 +51,85 @@ void parse()
     }
 }
 
-// looks for identifier and '='
-int assignStatement()
+/*void statement()
 {
+    if(lookahead == PRIMITIVE)
+    {
+        initializeStatement();
+    }
+    else if(lookahead == ID)
+    {
+        assignStatement();
+    }
+    else
+
+}*/
+
+void initializeStatement()
+{
+
+    // if primitive type
+    if(lookahead =! PRIMITIVE)
+    {
+        //printf("%d\n",lookahead);
+        assignStatement();
+    }
+    else
+    {
+        printf("%d\n",lookahead);
+        match(PRIMITIVE);
+        printf("%d\n",lookahead);
+        // next has to be identifier
+        if (lookahead != ID)
+        {
+            printf("Line %d error: expecting identifier\n", numLines);
+            cleanup();
+            exit(1);
+        }
+        else
+        {
+            match(ID);
+            // if next token is ',' keep getting ID until ',' is not ending
+            while(lookahead == ',')
+            {
+                match(lookahead);
+                if(lookahead != ID)
+                {
+                    printf("Line %d error: expecting identifier\n", numLines);
+                    cleanup();
+                    exit(1);
+                }
+                else
+                {
+                    match(ID);
+                }
+            }
+        }
+    }
+}
+
+// looks for identifier and '='
+void assignStatement() // changed int to void
+{
+    // checks if identifier is initialized
+    if(lookup(getID()) == NOT_FOUND)
+    {
+        printf("Line %d error: identifier %s is not initialized\n", numLines, getID());
+        cleanup();
+        exit(1);
+    }
+
     match(ID);
     if (lookahead != '=')
     {
         printf("Line %d error: expecting '='\n", numLines);
+        cleanup();
         exit(1);
     }
     else
     {
         match(lookahead);
         expression();
-
-        // reset parenthesis counters
-        paraLeft = 0;
-        paraRight = 0;
 
         match(';');
     }
@@ -80,7 +142,9 @@ void expression()
     while(lookahead == '+' || lookahead == '-')
     {
         // store operator
-        insert(OPERATOR, lookahead);
+        opArray[op] = lookahead;
+        op++;
+
         match(lookahead);
         term();
         // perform operation with both operands
@@ -95,9 +159,12 @@ void term()
     while(lookahead == '*' || lookahead == '/')
     {
         // store operator
-        insert(OPERATOR, lookahead);
+        opArray[op] = lookahead;
+        op++;
+
         match(lookahead);
         factor();
+
         // perform operation with both operands
         performOperation();
     }
@@ -108,30 +175,28 @@ void factor()
 {
     if(lookahead == ID)
     {
-        // load register
+        // load register with identifier
+        strcpy(regArray[reg], getID());
+        reg++;
         match(ID);
     }
     else if(lookahead == NUM)
     {
-        // load register
+        // load register with number
+        strcpy(regArray[reg], getID());
+        reg++;
         match(NUM);
     }
     else if(lookahead = '(')
     {
-        paraLeft++;
-        if(paraRight > 0)
-        {
-            reg++;
-        }
         match('(');
         expression();
-
-        paraRight++;
         match(')');
     }
     else
     {
         printf("Line %d error: expecting '('\n", numLines);
+        cleanup();
         exit(1);
     }
 }
@@ -146,50 +211,46 @@ void match(int token)
     else
     {
         printf("Line %d error: expecting ')'\n", numLines);
+        cleanup();
         exit(1);
     }
 }
 
-void storeID(char* id)
-{
-    identifier = id;
-}
-
-void storeNUM(char* num)
-{
-    // convert num to int value
-    int i = atoi(num);
-    if(number1 == 0;)
-    {
-        number1 = i;
-    }
-    else if (number2 == 0;)
-    {
-        number2 = i;
-    }
-}
-
-void storeOperator(char op)
-{
-    operator = op;
-}
-
 void performOperation()
 {
-    // copy linked list current pointer
-
-    // get next node from linked list
 
     // write out register assigned by identifier or number
+    for(int i = 0; i < reg; i++)
+    {
+        fprintf(output, "R%d = %s\n", i, regArray[i]);
+    }
 
-    reg++;
-    // repeat until operator
+    if(op > 0)
+    {
+        for(int j = op-1; j > 0; j--)
+        {
+            fprintf(output, "R%d = R%d %c R%d\n", j, j, opArray[j], j+1);
+        }
+    }
 
     // write out first register <operator> second register
-
-    if(paraLeft > paraRight)
+    fprintf(output, "*****[");
+    for(int i = 0; i < reg; i++)
     {
-        // write out register <operator> register again
+        fprintf(output, "%s,", regArray[i]);
     }
+    for(int j = 0; j < op; j++)
+    {
+        fprintf(output, "%c,", opArray[j]);
+    }
+    fprintf(output, "]*****\n");
+
     reg = 0;
+    op = 0;
+}
+
+char* getID()
+{
+    struct node* first = getHead();
+    return first->symbol;
 }

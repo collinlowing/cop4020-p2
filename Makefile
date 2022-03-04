@@ -12,4 +12,4 @@ LexicalAnalyzer.o: LexicalAnalyzer.c LexicalAnalyzer.h LinkedList.h
 RDParser.o: RDParser.c RDParser.h LexicalAnalyzer.h
 
 clean :
-	rm ${OBJS} app
+	rm ${OBJS} *.out app

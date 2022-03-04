@@ -6,8 +6,8 @@
   parses a statement found in lexical analysis
 ***************************************************************/
 
-#ifndef COP4020_P1_RDPARSER_H
-#define COP4020_P1_RDPARSER_H
+#ifndef COP4020_RDPARSER_H
+#define COP4020_RDPARSER_H
 
 #include "LexicalAnalyzer.h"
 #include "LinkedList.h"
@@ -15,18 +15,21 @@
 #include<stdlib.h>
 
 extern int lookahead;
-extern int paraLeft;
-extern int paraRight;
+extern char* identifier;
+extern char operator;
+extern char regArray[10][256]; // stores registers
+extern char opArray[10]; // stores operator chars
+extern int reg; // register counter
+extern int op; // operator counter
 
 void parse();
-int assignStatement();
+void initializeStatement();
+void assignStatement();
 void match(int token);
 void factor();
 void expression();
 void term();
-void storeID(char* id);
-void storeNUM(char* num);
-void storeOperator(char op);
 void performOperation();
+char* getID();
 
-#endif //COP4020_P1_RDPARSER_H
+#endif //COP4020_RDPARSER_H

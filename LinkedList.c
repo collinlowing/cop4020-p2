@@ -82,3 +82,8 @@ struct node* find(char symbol[256]) {
     // if symbol found, return the current node
     return current;
 }
+
+struct node* getHead()
+{
+    return head;
+}

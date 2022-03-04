@@ -6,8 +6,8 @@
   store identifiers
 ***************************************************************/
 
-#ifndef COP4020_P1_LINKEDLIST_H
-#define COP4020_P1_LINKEDLIST_H
+#ifndef COP4020_LINKEDLIST_H
+#define COP4020_LINKEDLIST_H
 
 #include <stdio.h>
 #include <string.h>
@@ -26,8 +26,8 @@ extern struct node *current;
 void printList();
 void insert(int key, char symbol[256]);
 void deleteFirst();
-struct node* popHead();
+struct node* getHead();
 bool isEmpty();
 struct node* find(char* symbol);
 
-#endif //COP4020_P1_LINKEDLIST_H
+#endif //COP4020_LINKEDLIST_H
