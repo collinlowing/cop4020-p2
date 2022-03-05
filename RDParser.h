@@ -21,8 +21,11 @@ extern char regArray[10][256]; // stores registers
 extern char opArray[10]; // stores operator chars
 extern int reg; // register counter
 extern int op; // operator counter
+extern FILE * output;
 
 void parse();
+void initOutput();
+void statement();
 void initializeStatement();
 void assignStatement();
 void match(int token);
@@ -30,6 +33,7 @@ void factor();
 void expression();
 void term();
 void performOperation();
-char* getID();
+void printList();
+void cleanup();
 
 #endif //COP4020_RDPARSER_H

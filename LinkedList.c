@@ -9,20 +9,9 @@
 #include "LinkedList.h"
 
 struct node *head = NULL;       // starting pointer for list
-struct node *current = NULL;    // current place in list
+char* lastSymbol;    // last item in list
 
-// print the list symbols
-void printList() {
-    struct node *ptr = head;
-    printf("Identifiers: ");
 
-    while(ptr != NULL) {
-        printf("%s ", ptr->symbol);
-        ptr = ptr->next;
-    }
-
-    printf("\n");
-}
 
 // insert link at the first location
 void insert(int key, char* symbol) {
@@ -31,6 +20,8 @@ void insert(int key, char* symbol) {
 
     link->key = key;
     strcpy(link->symbol, symbol); // copy the string to new pointer
+
+    lastSymbol = link->symbol;
 
     // point it to old first node
     link->next = head;
@@ -83,7 +74,7 @@ struct node* find(char symbol[256]) {
     return current;
 }
 
-struct node* getHead()
+char * getLastSymbol()
 {
-    return head;
+    return lastSymbol;
 }

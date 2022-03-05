@@ -23,10 +23,10 @@ struct node {
 extern struct node *head;
 extern struct node *current;
 
-void printList();
+//void printList();
 void insert(int key, char symbol[256]);
 void deleteFirst();
-struct node* getHead();
+char * getLastSymbol();
 bool isEmpty();
 struct node* find(char* symbol);
 

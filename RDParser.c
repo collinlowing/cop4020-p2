@@ -15,11 +15,12 @@ char regArray[10][256];
 char opArray[10];
 int reg = 0;
 int op = 0;
-
+FILE * output = NULL;
 
 // starts the parsing and lexical analysis
 void parse()
 {
+    initOutput();
     // get first token
     lookahead = lexan();
     // check if starts with begin
@@ -38,12 +39,12 @@ void parse()
         {
             if(lookahead != BEGIN) // prevents multiple begin statements
             {
-                initializeStatement();
+                statement();
             }
             if(lookahead == END) // ended the program in success
             {
                 printf("success\n");
-                printList();
+                //printList();
                 cleanup();
                 exit(0);
             }
@@ -51,75 +52,107 @@ void parse()
     }
 }
 
-/*void statement()
+void initOutput()
+{
+    // init file output
+    char * outputFileName = fName;
+    strcat(outputFileName, ".out");
+
+    output = fopen(outputFileName, "w");
+
+    // check if output file is open
+    if(output == NULL)
+    {
+        printf("error: output file could not be opened\n");
+        exit(1);
+    }
+    else
+    {
+        printf("output file is open\n");
+    }
+}
+
+// intermediate
+void statement()
 {
     if(lookahead == PRIMITIVE)
     {
         initializeStatement();
     }
-    else if(lookahead == ID)
+    else
     {
         assignStatement();
     }
-    else
+}
 
-}*/
-
+// handles initialization statements
 void initializeStatement()
 {
-
-    // if primitive type
-    if(lookahead =! PRIMITIVE)
+    match(PRIMITIVE);
+    if(lookahead != ID)
     {
-        //printf("%d\n",lookahead);
-        assignStatement();
+        printf("Line %d error: expecting identifier\n", numLines);
+        cleanup();
+        exit(1);
     }
     else
     {
-        printf("%d\n",lookahead);
-        match(PRIMITIVE);
-        printf("%d\n",lookahead);
-        // next has to be identifier
-        if (lookahead != ID)
+        if(lookup(idLexeme) != NOT_FOUND)
         {
-            printf("Line %d error: expecting identifier\n", numLines);
+            printf("Line %d error: redefinition of identifier\n", numLines);
             cleanup();
             exit(1);
         }
-        else
+        // write register to file
+        fprintf(output, "R%d = %s\n", reg, idLexeme);
+        strcpy(regArray[reg], idLexeme);
+        reg++;
+        // insert into list
+        insert(ID, idLexeme);
+        match(ID);
+        while(lookahead == ',')
         {
-            match(ID);
-            // if next token is ',' keep getting ID until ',' is not ending
-            while(lookahead == ',')
+            match(',');
+            if(lookahead != ID)
             {
-                match(lookahead);
-                if(lookahead != ID)
+                printf("Line %d error: expecting identifier after ','\n", numLines);
+                cleanup();
+                exit(1);
+            }
+            else
+            {
+                if(lookup(idLexeme) != NOT_FOUND)
                 {
-                    printf("Line %d error: expecting identifier\n", numLines);
+                    printf("Line %d error: redefinition of identifier\n", numLines);
                     cleanup();
                     exit(1);
                 }
-                else
-                {
-                    match(ID);
-                }
+
+                // load register with identifier
+                fprintf(output, "R%d = %s\n", reg, idLexeme);
+                strcpy(regArray[reg], idLexeme);
+                reg++;
+
+                insert(ID, idLexeme);
+                match(ID);
             }
         }
+        match(';');
     }
 }
 
 // looks for identifier and '='
-void assignStatement() // changed int to void
+void assignStatement()
 {
-    // checks if identifier is initialized
-    if(lookup(getID()) == NOT_FOUND)
+    if(lookup(idLexeme) == NOT_FOUND)
     {
-        printf("Line %d error: identifier %s is not initialized\n", numLines, getID());
+        printf("Line %d error: identifier %s is not initialized\n", numLines, idLexeme);
         cleanup();
         exit(1);
     }
 
     match(ID);
+
     if (lookahead != '=')
     {
         printf("Line %d error: expecting '='\n", numLines);
@@ -143,6 +176,7 @@ void expression()
     {
         // store operator
         opArray[op] = lookahead;
+        printf("op = %c\n", opArray[op]);
         op++;
 
         match(lookahead);
@@ -160,6 +194,7 @@ void term()
     {
         // store operator
         opArray[op] = lookahead;
+        printf("op = %c\n", opArray[op]);
         op++;
 
         match(lookahead);
@@ -173,17 +208,22 @@ void term()
 // looks for identifier, number, or parenthesis
 void factor()
 {
-    if(lookahead == ID)
-    {
-        // load register with identifier
-        strcpy(regArray[reg], getID());
-        reg++;
+    if(lookahead == ID) {
+        if (lookup(idLexeme) == NOT_FOUND)
+        {
+            printf("Line %d error: identifier %s is not initialized\n", numLines, idLexeme);
+            cleanup();
+            exit(1);
+        }
+
         match(ID);
     }
     else if(lookahead == NUM)
     {
+        printf("numLexeme = %s\n",numLexeme);
         // load register with number
-        strcpy(regArray[reg], getID());
+        fprintf(output, "R%d = %s\n", reg, numLexeme);
+        strcpy(regArray[reg], numLexeme);
         reg++;
         match(NUM);
     }
@@ -218,39 +258,48 @@ void match(int token)
 
 void performOperation()
 {
+    fprintf(output, "R%d = R%d %c R%d\n", reg-reg, reg-reg+1, opArray[op-1], op-1);
 
-    // write out register assigned by identifier or number
-    for(int i = 0; i < reg; i++)
-    {
-        fprintf(output, "R%d = %s\n", i, regArray[i]);
-    }
+    printList();
 
-    if(op > 0)
-    {
-        for(int j = op-1; j > 0; j--)
-        {
-            fprintf(output, "R%d = R%d %c R%d\n", j, j, opArray[j], j+1);
-        }
-    }
+    /*// empty list
+    while(!isEmpty()) {
+        deleteFirst();
+    }*/
 
-    // write out first register <operator> second register
-    fprintf(output, "*****[");
-    for(int i = 0; i < reg; i++)
-    {
-        fprintf(output, "%s,", regArray[i]);
-    }
-    for(int j = 0; j < op; j++)
-    {
-        fprintf(output, "%c,", opArray[j]);
-    }
-    fprintf(output, "]*****\n");
-
-    reg = 0;
-    op = 0;
+    /*reg = 0;
+    op = 0;*/
 }
 
-char* getID()
+// print the list symbols
+void printList() {
+    struct node *ptr = head;
+    //printf("Identifiers: ");
+
+    // write out ending line with all identifiers and operators in list
+    fprintf(output, "*****[");
+    while(ptr != NULL) {
+        fprintf(output, "%s,", ptr->symbol);
+        ptr = ptr->next;
+    }
+    int i = 0;
+    for(; i < op-1; i++)
+    {
+        fprintf(output, "%c,", opArray[i]);
+    }
+    fprintf(output, "%c", opArray[i]);
+    fprintf(output, "]*****\n");
+
+    //printf("\n");
+}
+
+// cleanup pointers to prevent memory leak
+void cleanup()
 {
-    struct node* first = getHead();
-    return first->symbol;
+    while(!isEmpty()) {
+        deleteFirst();
+    }
+
+    fclose(input);
+    fclose(output);
 }

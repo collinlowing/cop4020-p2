@@ -8,7 +8,7 @@ app : ${OBJS}
 
 main.o : main.c RDParser.h
 LinkedList.o: LinkedList.c LinkedList.h
-LexicalAnalyzer.o: LexicalAnalyzer.c LexicalAnalyzer.h LinkedList.h
+LexicalAnalyzer.o: LexicalAnalyzer.c LexicalAnalyzer.h LinkedList.h RDParser.h
 RDParser.o: RDParser.c RDParser.h LexicalAnalyzer.h
 
 clean :

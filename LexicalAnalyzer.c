@@ -12,9 +12,10 @@
 int numLines = 1;
 int type;
 FILE * input = NULL;
-FILE * output = NULL;
 char ch;
 char * fName;
+char numLexeme[MAX_STR_LENGTH] = "";
+char idLexeme[MAX_STR_LENGTH] = "";
 
 // opens file and checks if the file is actually open
 void init(char * filename)
@@ -29,7 +30,7 @@ void init(char * filename)
         exit(1);
     }
 
-    // init file output
+    /*// init file output
     char * outputFileName = fName;
     strcat(outputFileName, ".out");
 
@@ -41,6 +42,10 @@ void init(char * filename)
         printf("error: output file could not be opened\n");
         exit(1);
     }
+    else
+    {
+        printf("output file is open\n");
+    }*/
 }
 
 // handles file i/o and collects identifiers
@@ -49,8 +54,9 @@ int lexan()
     // initialize local variables
     int numLength = 0;
     int idLength = 0;
-    char numLexeme[MAX_STR_LENGTH] = "";
-    char idLexeme[MAX_STR_LENGTH] = "";
+    // emptying char arrays
+    numLexeme[0] = '\0';
+    idLexeme[0] = '\0';
 
     while(1)
     {
@@ -107,7 +113,7 @@ int lexan()
                     return END;
                 }
                 // checks if primitive type initialization
-                if(strcmp(idLexeme, "int") == 0)
+                else if(strcmp(idLexeme, "int") == 0)
                 {
                     return PRIMITIVE;
                 }
@@ -116,7 +122,7 @@ int lexan()
             }
             if(idLength > 0 && idLexeme[idLength - 1] == '_') // checks if identifier ends with '-'
             {
-                printf("Line %d error: identifier cannot end with '_'", numLines);
+                printf("Line %d error: identifier cannot end with '_'\n", numLines);
                 cleanup();
                 exit(1);
             }
@@ -125,7 +131,7 @@ int lexan()
 
             if(type == NOT_FOUND) // if the identifier is not found then add it to the list
             {
-                insert(ID, idLexeme);
+                //insert(ID, idLexeme);
                 ungetc(ch, input);
                 return ID; // return type
             }
@@ -171,15 +177,4 @@ void append(char * str, char c)
     int length = strlen(str);
     str[length] = c;
     str[length + 1] = '\0';
-}
-
-// cleanup pointers to prevent memory leak
-void cleanup()
-{
-    while(!isEmpty()) {
-        deleteFirst();
-    }
-
-    fclose(input);
-    fclose(output);
 }

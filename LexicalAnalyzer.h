@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "LinkedList.h"
+#include "RDParser.h"
 
 #define MAX_STR_LENGTH 256
 
@@ -26,9 +27,10 @@
 extern int numLines;
 extern int type;
 extern FILE * input;
-extern FILE * output;
 extern char ch;
 extern char* fName;
+extern char numLexeme[MAX_STR_LENGTH];
+extern char idLexeme[MAX_STR_LENGTH];
 
 void init(char * filename);
 int lookup(char* lexeme);
